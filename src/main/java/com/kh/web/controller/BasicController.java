@@ -211,4 +211,101 @@ public class BasicController {
 		
 	}
 	
+	/*
+	 * * 응답페이지를 만들어서 전달하는 방법 - 2
+	 * 
+	 * - html 코드 내에 Java 코드를 기술하여 사용자에게 전달하는 방법
+	 *   (JSP 를 이용한 방법)
+	 *   
+	 * - .jsp 형식을 이용해서 화면을 구성하고,
+	 *   응답페이지에서 필요로 하는 데이터들을 request 의 attribute 영역에 셋팅 후
+	 *   그 페이지의 경로를 문자열로 리턴하면서 그 페이지를 보여주는 원리임!!
+	 *   (그 .jsp 페이지에서는 응답데이터들을 request 의 attribute 영역에 셋팅 후
+	 *   
+	 * - 위에서 봤었던 Java 코드 내에 html 코드를 기술하는 방법보다 훨씬 많이 쓰임!!
+	 */
+	
+	// POST 방식으로 test2 에 요청했다면 해당 이 메소드가 호출됨!!
+	// > method 요청 방식이 어긋나면 405 에러가 발생한다!!
+	@RequestMapping(value="test2", method=RequestMethod.POST)
+	public String requestPostController(HttpServletRequest request) {
+		
+		// System.out.println("잘 호출 되나?");
+		
+		// 요청 시 전달된 값들을 request 의 parameter 영역으로부터 뽑기
+		// - 이름 : name
+		String name = request.getParameter("name");
+		// "홍길동" / ""
+		
+		// - 성별 : gender
+		String gender = request.getParameter("gender");
+		// "M" / "F" / null
+		
+		// - 나이 : age
+		int age = Integer.parseInt(request.getParameter("age"));
+		// "20" --> 20 / "" --> NumberFormatException 주의
+		// > 숫자를 입력받았을 경우에는 문자열로 넘어옴!! 파싱 가능!!
+		
+		// - 사는 도시 : city
+		String city = request.getParameter("city");
+		// "서울시" / "경기도" / ...
+		
+		// - 키 : height
+		double height = Double.parseDouble(request.getParameter("height"));
+		// "178" --> 178.0
+		// > 마찬가지로 파싱 가능!!
+		
+		// - 좋아하는 음식 (모두 고르시오) : food
+		String[] foods = request.getParameterValues("food");
+		// ["한식", "일식"] / null
+		
+		System.out.println("이름 : " + name);
+		System.out.println("성별 : " + gender);
+		System.out.println("나이 : " + age);
+		System.out.println("사는 도시 : " + city);
+		System.out.println("키 : " + height);
+		
+		if(foods == null) {
+			
+			System.out.println("좋아하는 음식들 : 없음");
+			
+		} else {
+			
+			System.out.println("좋아하는 음식들 : " + String.join(", ", foods));
+		}
+		
+		// 이 뽑아낸 값들을 가지고 요청 처리해야함!! (DB 와 상호작용)
+		// 보통의 흐름 : Service <-> Dao <->DB
+		
+		// DB 까지 다녀왔다라는 가정 하에 요청 처리해야함!! (DB 와 상호작용)
+		// 보통의 흐름 : Service <-> Dao <-> DB
+		
+		// DB 까지 다녀왔다라는 가정 하에 요청 처리 후 사용자가 보게 될 응답페이지를 만들어서 전달해보기!!
+		
+		// * JSP 를 이용해서 응답페이지 띄워보기 (html 코드 내에 java 코드를 쓸 수 있는 기술)
+		
+		// 1. .jsp 파일 형식으로 응답페이지의 틀을 html 태그를 이용해서 잡아줌
+		// > views 폴더에 responsePage.jsp 에서
+		//   입력받았던 이름, 나이, 사는 도시, 키, 성별, 좋아하는 음식
+		//   을 출력해야함!! (이 데이터들을 그대로 다시 전달)
+		// > request 의 attribute 영역에 키 + 밸류 세트로 담아두기
+		//   requesr.setAttribute("키", 밸류);
+		//   (키는 String 타입, 밸류는 Object 타입임!! - 다형성 적용)
+		request.setAttribute("name", name);
+		request.setAttribute("age", age);
+		request.setAttribute("city", city);
+		request.setAttribute("height", height);
+		request.setAttribute("gender", gender);
+		request.setAttribute("foods", foods);
+		
+		// 3. 응답페이지의 정보를 문자열로 리턴
+		// > 화면을 띄워주는 역할의 구문
+		
+		// return "/WEB-INF/views/responsePage.jsp";
+		// > application.properties 파일에서 설정했던 View Resolver 설정에 의해
+		//   응답페이지명이 자동완성 된다!!
+		return "responsePage";
+		
+	}
+	
 }
